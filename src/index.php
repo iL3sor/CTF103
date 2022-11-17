@@ -8,5 +8,11 @@
     else{
         $page='home';
     }
-    include($page.'.php');
+    $whitelist= ['home','login','logout','signup'];
+    if(in_array($page,$whitelist)){
+        include($page.'.php');
+    }
+    else{
+        include('errors.php');
+    }
 ?>
