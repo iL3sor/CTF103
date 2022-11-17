@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  web-service:
+    build: ./src
+    restart: unless-stopped
+    ports:
+      - 80:80
+    networks:
+      vpcbr:
+        ipv4_address: 172.21.0.4
+    depends_on:
+      - service-db
+    environment:
+      - MYSQL_HOSTNAME=service-db
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=vcs
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=password
+
+  service-db:
+    build: ./db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    expose:
+      - 3306
+    networks:
+      vpcbr:
+        ipv4_address: 172.21.0.5
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=vcs
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=password
+  bot-service:
+    build: ./bot
+    restart: unless-stopped
+    networks:
+      vpcbr:
+        ipv4_address: 172.21.0.6
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+          gateway: 172.21.0.1
